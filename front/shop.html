@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Shop</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <!-- Main Button -->
+
+    <a
+      href="main.html"
+      id="mainButton"
+      class="btn btn-warning"
+      style="position: absolute; top: 10px; left: 10px"
+    >
+      Main</a
+    >
+
+    <!-- Product Container -->
+    <div id="product-container" class="container mt-5 d-flex flex-wrap"></div>
+
+    <!-- Modal Structure -->
+    <div
+      class="modal fade"
+      id="productModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="productModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="modalContent">
+            <img
+              id="modalImage"
+              src=""
+              alt="Product Image"
+              class="img-fluid mb-3"
+              style="max-width: 100%; height: auto"
+            />
+            <div id="modalDetails"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const productContainer = document.getElementById("product-container");
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("GET", "http://localhost:8081/api/computer/all", true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+
+            data.forEach((item) => {
+              const card = document.createElement("div");
+              card.classList.add("card", "m-2");
+              card.style.width = "200px";
+
+              const img = document.createElement("img");
+              img.src = item.image || "https://via.placeholder.com/150";
+              img.alt = item.name;
+              img.classList.add("card-img-top");
+
+              const cardBody = document.createElement("div");
+              cardBody.classList.add("card-body");
+
+              const marka = document.createElement("h5");
+              marka.classList.add("card-title");
+              marka.textContent = `Marka: ${item.category}`;
+
+              const price = document.createElement("p");
+              price.classList.add("card-text");
+              price.innerHTML = `<strong>Price:</strong> ${item.price} AZN`;
+
+              const button = document.createElement("button");
+              button.innerText = "More Details";
+              button.classList.add("btn", "btn-primary");
+              button.onclick = () => showDetails(item);
+
+              cardBody.appendChild(marka);
+              cardBody.appendChild(price);
+              cardBody.appendChild(button);
+
+              card.appendChild(img);
+              card.appendChild(cardBody);
+              productContainer.appendChild(card);
+            });
+          } else if (xhr.readyState === 4) {
+            console.error("Error fetching data");
+          }
+        };
+
+        xhr.send();
+      });
+
+      // Show details in modal
+      function showDetails(item) {
+        // Set image in modal
+        const modalImage = document.getElementById("modalImage");
+        modalImage.src = item.image || "https://via.placeholder.com/150";
+        modalImage.alt = item.name;
+
+        // Set other details in modal
+        const modalDetails = document.getElementById("modalDetails");
+        modalDetails.innerHTML = `
+                <p><strong>ID:</strong> ${item.id}</p>
+                <p><strong>Category:</strong> ${item.category}</p>
+                <p><strong>Name:</strong> ${item.name}</p>
+                <p><strong>Price:</strong> ${item.price} AZN</p>
+                <p><strong>RAM:</strong> ${item.ram} GB</p>
+                <p><strong>Storage:</strong> ${item.storage} GB</p>
+                <p><strong>Storage Type:</strong> ${item.storageType}</p>
+                <p><strong>Operating System:</strong> ${item.operatingSystem}</p>
+                <p><strong>Graphics Card:</strong> ${item.graphicsCard}</p>
+                <p><strong>Description:</strong> ${item.description}</p>
+            `;
+        $("#productModal").modal("show");
+      }
+    </script>
+  </body>
+</html>
